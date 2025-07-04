@@ -4,6 +4,7 @@ import os
 from openpyxl import load_workbook
 import datetime
 from openpyxl.styles import Font
+import re
 
 class BomExcelSortingApp:
     def __init__(self, root):
@@ -137,8 +138,14 @@ class BomExcelSortingApp:
                             base = os.path.basename(file_path)
                             name, ext = os.path.splitext(base)
                             date_str = datetime.datetime.now().strftime('%Y%m%d')
-                            new_name = f"{name}-{date_str}{ext}"
-                            save_path = os.path.join(save_folder, new_name)
+                            # 若檔名已經有 --YYYYMMDD 或 -YYYYMMDD 結尾，則替換為今天日期
+                            new_name = name
+                            m = re.search(r'(--|-)\d{8}$', name)
+                            if m:
+                                new_name = re.sub(r'(--|-)\d{8}$', f"{m.group(1)}{date_str}", name)
+                            else:
+                                new_name = f"{name}-{date_str}"
+                            save_path = os.path.join(save_folder, new_name + ext)
                             wb.save(save_path)
                         else:
                             wb.save(file_path)
