@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox, ttk
 import os
 from openpyxl import load_workbook
 import datetime
+from openpyxl.styles import Font
 
 class BomExcelSortingApp:
     def __init__(self, root):
@@ -27,44 +28,56 @@ class BomExcelSortingApp:
         ttk.Entry(root, textvariable=self.folder_path, width=40, state='readonly').grid(row=0, column=1, padx=8, pady=8)
         ttk.Button(root, text='選擇', command=self.select_folder).grid(row=0, column=2, padx=8, pady=8)
 
+        # 另存資料夾選擇
+        self.save_folder_path = tk.StringVar()
+        ttk.Label(root, text='另存資料夾路徑:').grid(row=1, column=0, padx=8, pady=8, sticky='e')
+        ttk.Entry(root, textvariable=self.save_folder_path, width=40, state='readonly').grid(row=1, column=1, padx=8, pady=8)
+        ttk.Button(root, text='選擇', command=self.select_save_folder).grid(row=1, column=2, padx=8, pady=8)
+
         # 主料號
-        ttk.Label(root, text='主料號:').grid(row=1, column=0, padx=8, pady=8, sticky='e')
+        ttk.Label(root, text='主料號:').grid(row=2, column=0, padx=8, pady=8, sticky='e')
         self.main_part = ttk.Entry(root, width=40)
-        self.main_part.grid(row=1, column=1, padx=8, pady=8, columnspan=2)
+        self.main_part.grid(row=2, column=1, padx=8, pady=8, columnspan=2)
 
         # 替代料
-        ttk.Label(root, text='替代料:').grid(row=2, column=0, padx=8, pady=8, sticky='e')
+        ttk.Label(root, text='替代料:').grid(row=3, column=0, padx=8, pady=8, sticky='e')
         self.alt_part = ttk.Entry(root, width=40)
-        self.alt_part.grid(row=2, column=1, padx=8, pady=8, columnspan=2)
+        self.alt_part.grid(row=3, column=1, padx=8, pady=8, columnspan=2)
 
         # 替代料品名
-        ttk.Label(root, text='替代料品名:').grid(row=3, column=0, padx=8, pady=8, sticky='e')
+        ttk.Label(root, text='替代料品名:').grid(row=4, column=0, padx=8, pady=8, sticky='e')
         self.alt_part_name = ttk.Entry(root, width=40)
-        self.alt_part_name.grid(row=3, column=1, padx=8, pady=8, columnspan=2)
+        self.alt_part_name.grid(row=4, column=1, padx=8, pady=8, columnspan=2)
 
         # 替代料規格
-        ttk.Label(root, text='替代料規格:').grid(row=4, column=0, padx=8, pady=8, sticky='e')
+        ttk.Label(root, text='替代料規格:').grid(row=5, column=0, padx=8, pady=8, sticky='e')
         self.alt_part_spec = ttk.Entry(root, width=40)
-        self.alt_part_spec.grid(row=4, column=1, padx=8, pady=8, columnspan=2)
+        self.alt_part_spec.grid(row=5, column=1, padx=8, pady=8, columnspan=2)
 
         # 進度條
         self.progress = ttk.Progressbar(root, orient="horizontal", length=340, mode="determinate", style='TProgressbar')
-        self.progress.grid(row=6, column=0, columnspan=3, pady=16)
+        self.progress.grid(row=7, column=0, columnspan=3, pady=16)
         self.progress.grid_remove()
 
         # 確認、取消、關閉按鈕
-        ttk.Button(root, text='確認', command=self.confirm).grid(row=5, column=0, pady=12, padx=4, sticky='ew')
-        ttk.Button(root, text='取消', command=self.cancel).grid(row=5, column=1, pady=12, padx=4, sticky='ew')
-        ttk.Button(root, text='關閉', command=self.close_app).grid(row=5, column=2, pady=12, padx=4, sticky='ew')
+        ttk.Button(root, text='確認', command=self.confirm).grid(row=6, column=0, pady=12, padx=4, sticky='ew')
+        ttk.Button(root, text='取消', command=self.cancel).grid(row=6, column=1, pady=12, padx=4, sticky='ew')
+        ttk.Button(root, text='關閉', command=self.close_app).grid(row=6, column=2, pady=12, padx=4, sticky='ew')
 
     def select_folder(self):
         folder_selected = filedialog.askdirectory()
         if folder_selected:
             self.folder_path.set(folder_selected)
 
+    def select_save_folder(self):
+        folder_selected = filedialog.askdirectory()
+        if folder_selected:
+            self.save_folder_path.set(folder_selected)
+
     def process_excels(self, folder, main_part, alt_part):
         alt_part_name = self.alt_part_name.get()
         alt_part_spec = self.alt_part_spec.get()
+        save_folder = self.save_folder_path.get()
         # 收集所有 Excel 檔案
         excel_files = []
         for root_dir, dirs, files in os.walk(folder):
@@ -84,17 +97,51 @@ class BomExcelSortingApp:
                     wb = load_workbook(file_path)
                     modified = False
                     for ws in wb.worksheets:
+                        max_row = ws.max_row
+                        max_col = ws.max_column
                         for row in ws.iter_rows():
                             for cell in row:
                                 if cell.value == main_part:
-                                    ws.insert_rows(cell.row + 1)
-                                    ws.cell(row=cell.row + 1, column=cell.column, value=alt_part)
-                                    ws.cell(row=cell.row + 1, column=cell.column + 1, value=alt_part_name)
-                                    ws.cell(row=cell.row + 1, column=cell.column + 2, value=alt_part_spec)
-                                    ws.cell(row=cell.row + 1, column=cell.column + 11, value=datetime.datetime.now().strftime('%Y-%m-%d') + ' 客戶確認可替代')
-                                    modified = True
+                                    # 先檢查下方到下一個主料號前有無相同替代料
+                                    insert_row = cell.row + 1
+                                    found_duplicate = False
+                                    check_row = insert_row
+                                    while check_row <= max_row:
+                                        a1_value = ws.cell(row=check_row, column=1).value
+                                        alt_value = ws.cell(row=check_row, column=cell.column).value
+                                        # 遇到下一個主料號（A欄有值）就停止
+                                        if a1_value:
+                                            break
+                                        # 檢查同欄有無相同替代料
+                                        if alt_value == alt_part:
+                                            found_duplicate = True
+                                            break
+                                        check_row += 1
+                                    if not found_duplicate:
+                                        ws.insert_rows(insert_row)
+                                        ws.cell(row=insert_row, column=cell.column, value=alt_part)
+                                        ws.cell(row=insert_row, column=cell.column + 1, value=alt_part_name)
+                                        ws.cell(row=insert_row, column=cell.column + 2, value=alt_part_spec)
+                                        ws.cell(row=insert_row, column=cell.column + 11, value=datetime.datetime.now().strftime('%Y-%m-%d') + ' 客戶確認可替代')
+                                        # 設定字體為細明體，大小8，紅色
+                                        # 設定字體為細明體，大小8
+                                        font_normal = Font(name='MingLiU', size=8)
+                                        font_red = Font(name='MingLiU', size=8, color="FFFF0000", bold=True)
+                                        ws.cell(row=insert_row, column=cell.column).font = font_normal
+                                        ws.cell(row=insert_row, column=cell.column + 1).font = font_normal
+                                        ws.cell(row=insert_row, column=cell.column + 2).font = font_normal
+                                        ws.cell(row=insert_row, column=cell.column + 11).font = font_red
+                                        modified = True
                     if modified:
-                        wb.save(file_path)
+                        if save_folder:
+                            base = os.path.basename(file_path)
+                            name, ext = os.path.splitext(base)
+                            date_str = datetime.datetime.now().strftime('%Y%m%d')
+                            new_name = f"{name}-{date_str}{ext}"
+                            save_path = os.path.join(save_folder, new_name)
+                            wb.save(save_path)
+                        else:
+                            wb.save(file_path)
                     # 寫入 log
                     log_file.write(f"{datetime.datetime.now()} - {file_path}\n")
                 except Exception as e:
