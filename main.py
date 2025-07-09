@@ -25,55 +25,55 @@ class BomExcelSortingApp:
         self.save_folder_path = tk.StringVar()
 
         # 美化UI：設定視窗大小、置中、標題區塊、分隔線、欄位間距
-        self.root.geometry('600x420')
+        self.root.geometry('650x480')
         self.root.resizable(False, False)
         # 標題區塊
-        title_label = tk.Label(root, text='BOM Excel Sorting 工具', font=('Microsoft JhengHei', 18, 'bold'), bg='#4a90e2', fg='white', pady=12)
+        title_label = tk.Label(root, text='BOM Excel Sorting 工具', font=('Microsoft JhengHei', 22, 'bold'), bg='#357abd', fg='white', pady=18)
         title_label.grid(row=0, column=0, columnspan=3, sticky='ew')
         # 分隔線
         sep1 = ttk.Separator(root, orient='horizontal')
-        sep1.grid(row=1, column=0, columnspan=3, sticky='ew', pady=(0, 10))
+        sep1.grid(row=1, column=0, columnspan=3, sticky='ew', pady=(0, 16))
         # 調整欄位順序與間距
         row_base = 2
-        ttk.Label(root, text='資料夾路徑:').grid(row=row_base, column=0, padx=12, pady=8, sticky='e')
-        ttk.Entry(root, textvariable=self.folder_path, width=40, state='readonly').grid(row=row_base, column=1, padx=8, pady=8)
-        ttk.Button(root, text='選擇', command=self.select_folder).grid(row=row_base, column=2, padx=8, pady=8)
+        ttk.Label(root, text='資料夾路徑:').grid(row=row_base, column=0, padx=18, pady=12, sticky='e')
+        ttk.Entry(root, textvariable=self.folder_path, width=46, state='readonly').grid(row=row_base, column=1, padx=10, pady=12)
+        ttk.Button(root, text='選擇', command=self.select_folder).grid(row=row_base, column=2, padx=10, pady=12)
 
-        ttk.Label(root, text='另存資料夾路徑:').grid(row=row_base+1, column=0, padx=12, pady=8, sticky='e')
-        ttk.Entry(root, textvariable=self.save_folder_path, width=40, state='readonly').grid(row=row_base+1, column=1, padx=8, pady=8)
-        ttk.Button(root, text='選擇', command=self.select_save_folder).grid(row=row_base+1, column=2, padx=8, pady=8)
+        ttk.Label(root, text='另存資料夾路徑:').grid(row=row_base+1, column=0, padx=18, pady=12, sticky='e')
+        ttk.Entry(root, textvariable=self.save_folder_path, width=46, state='readonly').grid(row=row_base+1, column=1, padx=10, pady=12)
+        ttk.Button(root, text='選擇', command=self.select_save_folder).grid(row=row_base+1, column=2, padx=10, pady=12)
 
-        ttk.Label(root, text='主料號:').grid(row=row_base+2, column=0, padx=12, pady=8, sticky='e')
-        self.main_part = ttk.Entry(root, width=40)
-        self.main_part.grid(row=row_base+2, column=1, padx=8, pady=8, columnspan=2)
+        ttk.Label(root, text='主料號:').grid(row=row_base+2, column=0, padx=18, pady=12, sticky='e')
+        self.main_part = ttk.Entry(root, width=46)
+        self.main_part.grid(row=row_base+2, column=1, padx=10, pady=12, columnspan=2)
 
-        ttk.Label(root, text='替代料:').grid(row=row_base+3, column=0, padx=12, pady=8, sticky='e')
-        self.alt_part = ttk.Entry(root, width=40)
-        self.alt_part.grid(row=row_base+3, column=1, padx=8, pady=8, columnspan=2)
+        ttk.Label(root, text='替代料:').grid(row=row_base+3, column=0, padx=18, pady=12, sticky='e')
+        self.alt_part = ttk.Entry(root, width=46)
+        self.alt_part.grid(row=row_base+3, column=1, padx=10, pady=12, columnspan=2)
 
-        ttk.Label(root, text='替代料品名:').grid(row=row_base+4, column=0, padx=12, pady=8, sticky='e')
-        self.alt_part_name = ttk.Entry(root, width=40)
-        self.alt_part_name.grid(row=row_base+4, column=1, padx=8, pady=8, columnspan=2)
+        ttk.Label(root, text='替代料品名:').grid(row=row_base+4, column=0, padx=18, pady=12, sticky='e')
+        self.alt_part_name = ttk.Entry(root, width=46)
+        self.alt_part_name.grid(row=row_base+4, column=1, padx=10, pady=12, columnspan=2)
 
-        ttk.Label(root, text='替代料規格:').grid(row=row_base+5, column=0, padx=12, pady=8, sticky='e')
-        self.alt_part_spec = ttk.Entry(root, width=40)
-        self.alt_part_spec.grid(row=row_base+5, column=1, padx=8, pady=8, columnspan=2)
+        ttk.Label(root, text='替代料規格:').grid(row=row_base+5, column=0, padx=18, pady=12, sticky='e')
+        self.alt_part_spec = ttk.Entry(root, width=46)
+        self.alt_part_spec.grid(row=row_base+5, column=1, padx=10, pady=12, columnspan=2)
 
         # 再加一條分隔線
         sep2 = ttk.Separator(root, orient='horizontal')
-        sep2.grid(row=row_base+6, column=0, columnspan=3, sticky='ew', pady=(10, 10))
+        sep2.grid(row=row_base+6, column=0, columnspan=3, sticky='ew', pady=(16, 16))
 
         # 進度條
-        self.progress = ttk.Progressbar(root, orient="horizontal", length=340, mode="determinate", style='TProgressbar')
-        self.progress.grid(row=row_base+7, column=0, columnspan=3, pady=16)
+        self.progress = ttk.Progressbar(root, orient="horizontal", length=420, mode="determinate", style='TProgressbar')
+        self.progress.grid(row=row_base+7, column=0, columnspan=3, pady=20)
         self.progress.grid_remove()
 
         # 按鈕區塊
-        btn_frame = tk.Frame(root, bg='#f0f4f8')
-        btn_frame.grid(row=row_base+8, column=0, columnspan=3, pady=8)
-        ttk.Button(btn_frame, text='確認', command=self.confirm, width=12).pack(side='left', padx=10)
-        ttk.Button(btn_frame, text='取消', command=self.cancel, width=12).pack(side='left', padx=10)
-        ttk.Button(btn_frame, text='關閉', command=self.close_app, width=12).pack(side='left', padx=10)
+        btn_frame = tk.Frame(root, bg='#eaf1fb')
+        btn_frame.grid(row=row_base+8, column=0, columnspan=3, pady=16)
+        ttk.Button(btn_frame, text='確認', command=self.confirm, width=16).pack(side='left', padx=16)
+        ttk.Button(btn_frame, text='取消', command=self.cancel, width=16).pack(side='left', padx=16)
+        ttk.Button(btn_frame, text='關閉', command=self.close_app, width=16).pack(side='left', padx=16)
 
     def select_folder(self):
         folder_selected = filedialog.askdirectory()
